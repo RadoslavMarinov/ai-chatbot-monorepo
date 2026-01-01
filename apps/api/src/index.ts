@@ -6,6 +6,7 @@ import { zodFunction } from 'openai/helpers/zod';
 import { BooksModel } from './models/Books/Books.model';
 import { z } from 'zod';
 import { GeminiAi } from '@repo/ai';
+import { AlphaVantageForexApi, CryptoSymbol, Currency } from '@repo/trading';
 // import { GeminiAi } from './lib/ai/GeminiAi/GeminiAi';
 const app = express();
 const server = http.createServer(app);
@@ -22,8 +23,9 @@ const chatHistory: Array<ChatCompletionMessageParam> = [
 // const ai = new GithubOpenAiClient()
 const ai = new GeminiAi();
 
-app.get('/', (req, res) => {
-  res.send('Hello Worlde!');
+app.get('/', async (req, res) => {
+  const data = await new AlphaVantageForexApi().getMonthlyTimeSeries(Currency.EUR, Currency.USD);
+  return res.json(data);
 });
 
 app.get('/list-models', async (req, res) => {
@@ -75,7 +77,7 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
+  console.log(`http://localhost:${port} Server is listening on port ${port}`);
 });
 
 export default server;

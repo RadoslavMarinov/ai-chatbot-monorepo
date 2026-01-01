@@ -21,7 +21,9 @@
       "persistent": true,
       "env":[
         "GEMINI_AI_BASE_URL",
-        "GEMINI_AI_API_KEY"
+        "GEMINI_AI_API_KEY",
+        "ALPHA_VANTAGE_API_BASE_URL",
+        "ALPHA_VANTAGE_API_KEY"
       ]
     }
   }

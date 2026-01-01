@@ -16,6 +16,7 @@
   "dependencies": {
     "@repo/utils":"workspace:*",
     "@repo/ai":"workspace:*",
+    "@repo/trading":"workspace:*",
     "dotenv": "^17.0.1",
     "express": "^4.19.2",
     "openai": "^5.8.2",

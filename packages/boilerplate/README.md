@@ -9,4 +9,6 @@
 
 4) Build `pnpm build`
 
-5) delete this README.md
+5) delete this `README.md`
+
+**Important**: If there are new env variables put them in *turbo.json* file
