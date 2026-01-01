@@ -1,0 +1,1 @@
+export type GeminiAITypes = "GEMINI_AI_BASE_URL"|"GEMINI_AI_API_KEY"

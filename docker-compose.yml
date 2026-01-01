@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "start", "--workspace=web"]
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=development
+    networks:
+      - my_app_network
+
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    ports:
+      - "3002:3002"
+    command: ["npm", "run", "start", "--workspace=api"]
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=development
+    networks:
+      - my_app_network
+
+networks:
+  my_app_network:
+    driver: bridge
