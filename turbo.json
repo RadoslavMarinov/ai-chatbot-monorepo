@@ -23,7 +23,9 @@
         "GEMINI_AI_BASE_URL",
         "GEMINI_AI_API_KEY",
         "ALPHA_VANTAGE_API_BASE_URL",
-        "ALPHA_VANTAGE_API_KEY"
+        "ALPHA_VANTAGE_API_KEY",
+        "GITHUB_AI_BASE_URL",
+        "GITHUB_AI_TOKEN"
       ]
     }
   }

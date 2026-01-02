@@ -8,12 +8,13 @@ export abstract class AbstractAi {
   protected availableModels: string[] = [];
 
   constructor(
+    protected model: string,
     protected baseUrl: string,
-    protected apiKey: string
+    protected apiKey: string,
   ) {
     this.ai = new OpenAI({
-      baseURL: this.baseUrl,
-      apiKey: this.apiKey,
+      baseURL: baseUrl,
+      apiKey: apiKey,
     });
   }
 
@@ -30,11 +31,17 @@ export abstract class AbstractAi {
     return this.availableModels;
   }
 
-  async runTools(model:string,  messages: Messages, tools: Tools ){
+  async runTools(messages: Messages, tools: Tools, model?:string, ){
+    const currentModel = model || this.model;
+    // const allowedModels = await this.listModels();
+    // if(!allowedModels.includes( currentModel)){
+    //   throw new Error(`The model "${currentModel}" is not part of the allowed models ${allowedModels}`)
+    // }
+    
     return this.ai.chat.completions.runTools({
       messages,
       tools,
-      model: model,
+      model: currentModel,
     })
   }
 }

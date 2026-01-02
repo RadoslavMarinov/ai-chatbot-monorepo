@@ -45,11 +45,11 @@ const WsClient: React.FC = () => {
   return (
     <div>
       <h1>WebSocket Client</h1>
-      <input
-        type="text"
+      <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type a message"
+        style={{ width: '40em', height: '10em' }}
       />
       <button onClick={sendMessage} disabled={!ws}>Send</button>
       <div>

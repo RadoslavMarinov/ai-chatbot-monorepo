@@ -49,8 +49,6 @@ export class AlphaVantageForexApi extends BaseAlphaVantageApi<AlphaVantageApiSea
     throw new Error(`FX_MONTHLY request failed with code: ${res.status}, text: ${res.statusText}`);
   }
 
-
-
   /**
    * This API returns the weekly time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
    * The latest data point is the price information for the week (or partial week) containing the current trading day, updated realtime.
@@ -95,25 +93,7 @@ export class AlphaVantageForexApi extends BaseAlphaVantageApi<AlphaVantageApiSea
     throw new Error(`FX_DAILY request failed with code: ${res.status}, text: ${res.statusText}`);
   }
 
-  /**
-   * @deprecated (PREMIUM Use Only) This API returns intraday time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
-   */
-  public async getIntradayTimeSeries(
-    fromCurrency: Currency,
-    toCurrency: Currency,
-    interval: IntraDayInterval
-  ): Promise<any> {
-    const res = await this.getWithParams({
-      function: "FX_INTRADAY",
-      from_currency: fromCurrency,
-      to_currency: toCurrency,
-      interval: interval,
-    });
-    if (res.ok) {
-      return res.json();
-    }
-    throw new Error(`FX_INTRADAY request failed with code: ${res.status}, text: ${res.statusText}`);
-  }
+
 
   /**
    * This API returns the realtime exchange rate for a pair of physical currency (e.g., USD)
@@ -137,6 +117,26 @@ export class AlphaVantageForexApi extends BaseAlphaVantageApi<AlphaVantageApiSea
     return this.getExchangeRate(cryptoCurrency, physicalCurrency);
   }
 
+
+  /**
+   * @deprecated (PREMIUM Use Only) This API returns intraday time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
+   */
+  public async getIntradayTimeSeries(
+    fromCurrency: Currency,
+    toCurrency: Currency,
+    interval: IntraDayInterval
+  ): Promise<any> {
+    const res = await this.getWithParams({
+      function: "FX_INTRADAY",
+      from_currency: fromCurrency,
+      to_currency: toCurrency,
+      interval: interval,
+    });
+    if (res.ok) {
+      return res.json();
+    }
+    throw new Error(`FX_INTRADAY request failed with code: ${res.status}, text: ${res.statusText}`);
+  }
   //  ------------------------- PRIVATE METHODS ------------------------- //
   /**
    * This API returns the realtime exchange rate for a pair of cryptocurrency

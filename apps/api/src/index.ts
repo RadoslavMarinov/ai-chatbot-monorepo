@@ -5,8 +5,13 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 import { zodFunction } from 'openai/helpers/zod';
 import { BooksModel } from './models/Books/Books.model';
 import { z } from 'zod';
-import { GeminiAi } from '@repo/ai';
-import { AlphaVantageForexApi, CryptoSymbol, Currency } from '@repo/trading';
+import { GeminiAi, GithubAi } from '@repo/ai';
+import {
+  AlphaVantageForexApi,
+  CryptoSymbol,
+  Currency,
+  forexMcpTools,
+} from '@repo/trading';
 // import { GeminiAi } from './lib/ai/GeminiAi/GeminiAi';
 const app = express();
 const server = http.createServer(app);
@@ -20,11 +25,14 @@ const chatHistory: Array<ChatCompletionMessageParam> = [
     content: 'Please use my tools to retrieve data about different data sets',
   },
 ];
-// const ai = new GithubOpenAiClient()
-const ai = new GeminiAi();
+const ai = new GithubAi("openai/gpt-4.1-mini");
+// const ai = new GeminiAi("gemini-2.0-flash");
 
 app.get('/', async (req, res) => {
-  const data = await new AlphaVantageForexApi().getMonthlyTimeSeries(Currency.EUR, Currency.USD);
+  const data = await new AlphaVantageForexApi().getMonthlyTimeSeries(
+    Currency.EUR,
+    Currency.USD
+  );
   return res.json(data);
 });
 
@@ -38,28 +46,31 @@ wss.on('connection', (ws) => {
 
   ws.on('message', async (message) => {
     console.log(`Received message => ${message}`);
-
     chatHistory.push({ role: 'user', content: `${message}` });
-    const runner = await ai.runTools('gemini-2.5-flash', chatHistory, [
-      zodFunction({
-        name: 'listAllBooks',
-        description: 'Returns a list of all books',
-        parameters: z.object({}),
-        function: () => BooksModel.all(),
-      }),
-      zodFunction({
-        name: 'getBookByName',
-        description: 'Search queries book by their name',
-        parameters: z.object({ name: z.string() }),
-        function: ({ name }) => BooksModel.findByName(name),
-      }),
-      zodFunction({
-        name: 'getBookByGenre',
-        description: 'Search queries book by their genre',
-        parameters: z.object({ genre: z.string() }),
-        function: ({ genre }) => BooksModel.findByGenre(genre),
-      }),
-    ]);
+    const runner = await ai.runTools(
+      chatHistory, //
+      [
+        ...forexMcpTools,
+        zodFunction({
+          name: 'listAllBooks',
+          description: 'Returns a list of all books',
+          parameters: z.object({}),
+          function: () => BooksModel.all(),
+        }),
+        zodFunction({
+          name: 'getBookByName',
+          description: 'Search queries book by their name',
+          parameters: z.object({ name: z.string() }),
+          function: ({ name }) => BooksModel.findByName(name),
+        }),
+        zodFunction({
+          name: 'getBookByGenre',
+          description: 'Search queries book by their genre',
+          parameters: z.object({ genre: z.string() }),
+          function: ({ genre }) => BooksModel.findByGenre(genre),
+        }),
+      ]
+    );
 
     const finalMessage = await runner.finalMessage();
 
