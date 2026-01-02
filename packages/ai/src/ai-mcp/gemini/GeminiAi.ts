@@ -1,8 +1,8 @@
 import { EnvUtils } from "@repo/utils";
 import { GeminiModels, GeminiAITypes } from "./types";
-import { AbstractAi } from "../AbstractAi";
+import { BaseAi } from "../BaseAi";
 
-export class GeminiAi extends AbstractAi {
+export class GeminiAi extends BaseAi {
   constructor(
     protected model:GeminiModels,
     protected baseUrl: string = EnvUtils.getEnvVariable<GeminiAITypes>("GEMINI_AI_BASE_URL"),

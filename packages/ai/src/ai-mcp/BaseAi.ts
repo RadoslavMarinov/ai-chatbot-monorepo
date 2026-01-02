@@ -1,16 +1,14 @@
 import OpenAI from "openai";
 import { Messages, Tools } from "./types";
 
-
-
-export abstract class AbstractAi {
+export abstract class BaseAi {
   protected ai: OpenAI; //TODO: make protected
   protected availableModels: string[] = [];
 
   constructor(
     protected model: string,
     protected baseUrl: string,
-    protected apiKey: string,
+    protected apiKey?: string,
   ) {
     this.ai = new OpenAI({
       baseURL: baseUrl,

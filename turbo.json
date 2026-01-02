@@ -25,7 +25,9 @@
         "ALPHA_VANTAGE_API_BASE_URL",
         "ALPHA_VANTAGE_API_KEY",
         "GITHUB_AI_BASE_URL",
-        "GITHUB_AI_TOKEN"
+        "GITHUB_AI_TOKEN",
+        "OLLAMA_API_BASE_URL",
+        "OLLAMA_API_KEY"
       ]
     }
   }

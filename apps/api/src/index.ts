@@ -5,7 +5,7 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 import { zodFunction } from 'openai/helpers/zod';
 import { BooksModel } from './models/Books/Books.model';
 import { z } from 'zod';
-import { GeminiAi, GithubAi } from '@repo/ai';
+import { GeminiAi, GithubAi, OllamaAi } from '@repo/ai';
 import {
   AlphaVantageForexApi,
   CryptoSymbol,
@@ -25,8 +25,9 @@ const chatHistory: Array<ChatCompletionMessageParam> = [
     content: 'Please use my tools to retrieve data about different data sets',
   },
 ];
-const ai = new GithubAi("openai/gpt-4.1-mini");
+// const ai = new GithubAi("openai/gpt-4.1-mini");
 // const ai = new GeminiAi("gemini-2.0-flash");
+const ai = new OllamaAi();
 
 app.get('/', async (req, res) => {
   const data = await new AlphaVantageForexApi().getMonthlyTimeSeries(
@@ -37,8 +38,8 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/list-models', async (req, res) => {
-  const models = await ai.listModels();
-  res.json(models);
+  // const models = await ai.listModels();
+  res.json({});
 });
 
 wss.on('connection', (ws) => {
@@ -47,6 +48,8 @@ wss.on('connection', (ws) => {
   ws.on('message', async (message) => {
     console.log(`Received message => ${message}`);
     chatHistory.push({ role: 'user', content: `${message}` });
+    
+    
     const runner = await ai.runTools(
       chatHistory, //
       [
@@ -78,7 +81,7 @@ wss.on('connection', (ws) => {
     console.log(`AI: ${response}\n`);
 
     chatHistory.push({ role: 'assistant', content: response });
-
+    
     ws.send(`Hello, you sent -> ${response}`);
   });
 
