@@ -10,10 +10,18 @@ export abstract class BaseAlphaVantageApi<SearchParams extends Record<string, an
     this.apiKey = apiKey ?? EnvUtils.getEnvVariable<AlphaVantageApiEnvs>("ALPHA_VANTAGE_API_KEY");
   }
 
+  // -------------------- PROTECTED METHODS -------------------- //
   protected getWithParams(params: SearchParams) {
     const url = `${this.apiBaseUrl}?${this.buildSearchParams(params)}`;
     console.log(`👉 url = `, url);
     return fetch(url);
+  }
+
+  protected handleResponse(res: Response){
+    if(res.ok){
+      return res.json()
+    }
+    throw new Error(`timeSeriesDaily failed with status ${res.status}, ${res.statusText}`)
   }
 
   // -------------------- PRIVATE METHODS -------------------- //

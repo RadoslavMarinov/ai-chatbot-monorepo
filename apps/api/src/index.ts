@@ -11,6 +11,9 @@ import {
   CryptoSymbol,
   Currency,
   forexMcpTools,
+  AlphaVantageStockApi,
+  StockSymbol,
+  stocksMcpTools,
 } from '@repo/trading';
 // import { GeminiAi } from './lib/ai/GeminiAi/GeminiAi';
 const app = express();
@@ -22,7 +25,7 @@ const port = process.env.PORT || 3002;
 const chatHistory: Array<ChatCompletionMessageParam> = [
   {
     role: 'system',
-    content: 'Use/call the tools to retrieve data about different data sets.',
+    content: 'Use/call the tools to retrieve data about different data sets. Present the information in user readable way. Dont use code snippets, assume the user is not a programmer',
   },
 ];
 // const ai = new GithubAi("openai/gpt-4.1-mini");
@@ -30,10 +33,9 @@ const chatHistory: Array<ChatCompletionMessageParam> = [
 const ai = new OllamaAi();
 
 app.get('/', async (req, res) => {
-  const data = await new AlphaVantageForexApi().getMonthlyTimeSeries(
-    Currency.EUR,
-    Currency.USD
-  );
+  const data = await new AlphaVantageStockApi().timeSeriesDaily({
+    symbol: StockSymbol.AAPL,
+  })
   return res.json(data);
 });
 
@@ -53,25 +55,26 @@ wss.on('connection', (ws) => {
     const runner = await ai.runTools(
       chatHistory, //
       [
+        ...stocksMcpTools,
         ...forexMcpTools,
-        zodFunction({
-          name: 'listAllBooks',
-          description: 'Returns a list of all books',
-          parameters: z.object({}),
-          function: () => BooksModel.all(),
-        }),
-        zodFunction({
-          name: 'getBookByName',
-          description: 'Search queries book by their name',
-          parameters: z.object({ name: z.string() }),
-          function: ({ name }) => BooksModel.findByName(name),
-        }),
-        zodFunction({
-          name: 'getBookByGenre',
-          description: 'Search queries book by their genre',
-          parameters: z.object({ genre: z.string() }),
-          function: ({ genre }) => BooksModel.findByGenre(genre),
-        }),
+        // zodFunction({
+        //   name: 'listAllBooks',
+        //   description: 'Returns a list of all books',
+        //   parameters: z.object({}),
+        //   function: () => BooksModel.all(),
+        // }),
+        // zodFunction({
+        //   name: 'getBookByName',
+        //   description: 'Search queries book by their name',
+        //   parameters: z.object({ name: z.string() }),
+        //   function: ({ name }) => BooksModel.findByName(name),
+        // }),
+        // zodFunction({
+        //   name: 'getBookByGenre',
+        //   description: 'Search queries book by their genre',
+        //   parameters: z.object({ genre: z.string() }),
+        //   function: ({ genre }) => BooksModel.findByGenre(genre),
+        // }),
       ]
     );
     
