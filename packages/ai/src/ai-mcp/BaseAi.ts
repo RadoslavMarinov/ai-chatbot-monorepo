@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { Messages, Tools } from "./types";
 
 export abstract class BaseAi {
-  protected ai: OpenAI; //TODO: make protected
+  protected ai: OpenAI;
   protected availableModels: string[] = [];
 
   constructor(
@@ -31,10 +31,6 @@ export abstract class BaseAi {
 
   async runTools(messages: Messages, tools: Tools, model?:string, ){
     const currentModel = model || this.model;
-    // const allowedModels = await this.listModels();
-    // if(!allowedModels.includes( currentModel)){
-    //   throw new Error(`The model "${currentModel}" is not part of the allowed models ${allowedModels}`)
-    // }
     
     return this.ai.chat.completions.runTools({
       messages,

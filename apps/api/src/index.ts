@@ -22,7 +22,7 @@ const port = process.env.PORT || 3002;
 const chatHistory: Array<ChatCompletionMessageParam> = [
   {
     role: 'system',
-    content: 'Please use my tools to retrieve data about different data sets',
+    content: 'Use/call the tools to retrieve data about different data sets.',
   },
 ];
 // const ai = new GithubAi("openai/gpt-4.1-mini");
@@ -74,7 +74,7 @@ wss.on('connection', (ws) => {
         }),
       ]
     );
-
+    
     const finalMessage = await runner.finalMessage();
 
     const response = finalMessage.content as string;

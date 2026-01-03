@@ -1,33 +1,75 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from "react";
+import Spinner from "../Spinners/Spinner";
+type State = {
+  message: string;
+  loading: boolean;
+  aiResponses: string[];
+};
+
+type Action =
+  | { type: "set-message"; message: string }
+  | { type: "set-loading"; loading: boolean }
+  | { type: "set-ai-response"; aiResponse: string };
+
+const reducer = (state: State, action: Action) => {
+  const { type } = action;
+  switch (type) {
+    case "set-message": {
+      return {
+        ...state,
+        message: action.message,
+      };
+    }
+    case "set-loading": {
+      return {
+        ...state,
+        loading: action.loading,
+      };
+    }
+    case "set-ai-response": {
+      return {
+        ...state,
+        aiResponses: [...state.aiResponses, action.aiResponse ],
+      };
+    }
+    default:
+      return state;
+  }
+};
 
 const WsClient: React.FC = () => {
-  const [message, setMessage] = useState<string>('');
-  const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
   const [ws, setWs] = useState<WebSocket | null>(null);
+
+  const [state, dispatch] = useReducer(reducer, {
+    message: "",
+    loading: false,
+    aiResponses: [],
+  });
 
   useEffect(() => {
     // Connect to the WebSocket server running on the API service
     // Use 'api' as the hostname because services can communicate by their names in docker-compose network
-    const websocket = new WebSocket('ws://127.0.0.1:3002');
+    const websocket = new WebSocket("ws://127.0.0.1:3002");
 
     websocket.onopen = () => {
-      console.log('WebSocket Connected');
+      console.log("WebSocket Connected");
       setWs(websocket);
     };
 
     websocket.onmessage = (event) => {
-      setReceivedMessages((prev) => [...prev, event.data]);
+      dispatch({ type: "set-ai-response", aiResponse: event.data });
+      dispatch({ type: "set-loading", loading: false });
     };
 
     websocket.onclose = () => {
-      console.log('WebSocket Disconnected');
+      console.log("WebSocket Disconnected");
       setWs(null);
     };
 
     websocket.onerror = (error) => {
-      console.error('WebSocket Error:', error);
+      console.error("WebSocket Error:", error);
     };
 
     return () => {
@@ -37,8 +79,9 @@ const WsClient: React.FC = () => {
 
   const sendMessage = () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(message);
-      setMessage('');
+      ws.send(state.message);
+      dispatch({ type: "set-message", message: "" });
+      dispatch({ type: "set-loading", loading: true });
     }
   };
 
@@ -46,16 +89,19 @@ const WsClient: React.FC = () => {
     <div>
       <h1>WebSocket Client</h1>
       <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        value={state.message}
+        onChange={(e) => dispatch({ type: "set-message", message: e.target.value })}
         placeholder="Type a message"
-        style={{ width: '40em', height: '10em' }}
+        style={{ width: "40em", height: "10em" }}
       />
-      <button onClick={sendMessage} disabled={!ws}>Send</button>
+      <button onClick={sendMessage} disabled={!ws}>
+        Send
+      </button>
+      {state.loading && <Spinner></Spinner>}
       <div>
         <h2>Received Messages:</h2>
         <ul>
-          {receivedMessages.map((msg, index) => (
+          {state.aiResponses.map((msg, index) => (
             <li key={index}>{msg}</li>
           ))}
         </ul>
