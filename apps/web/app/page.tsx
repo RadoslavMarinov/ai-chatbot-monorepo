@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <h1>RikoooAA</h1>
+        <h1 className="text-amber-600">RikoooAA</h1>
         <WsClient/>
       </main>
       <footer className={styles.footer}>
