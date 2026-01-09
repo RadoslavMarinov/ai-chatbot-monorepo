@@ -2,6 +2,7 @@
 import Markdown from "react-markdown";
 import React, { useEffect, useReducer, useState } from "react";
 import Spinner from "../Spinners/Spinner";
+import { ChatMessage } from "../Chat/ChatMessage";
 type State = {
   message: string;
   loading: boolean;
@@ -103,7 +104,7 @@ const WsClient: React.FC = () => {
         <ul>
 
           {state.aiResponses.map((msg, index) => (
-            <li key={index}><Markdown>{msg}</Markdown></li>
+            <li key={index}><ChatMessage content={msg}/></li>
           ))}
         </ul>
       </div>
