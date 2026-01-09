@@ -14,6 +14,7 @@ export const config = [
   eslintConfigPrettier,
   ...tseslint.configs.recommended,
   {
+    rules: { "@typescript-eslint/no-explicit-any": "off" },
     plugins: {
       turbo: turboPlugin,
     },

@@ -1,99 +1,71 @@
-export enum StockSymbol {
-  NVDA = "NVDA",  // NVIDIA Corporation – mega-cap tech leader (NASDAQ & S&P 500)
-  AAPL = "AAPL",  // Apple Inc. – mega-cap tech & consumer electronics
-  MSFT = "MSFT",  // Microsoft Corporation – mega-cap tech
-  GOOGL = "GOOGL", // Alphabet Inc. Class A – parent of Google
-  GOOG = "GOOG",  // Alphabet Inc. Class C – parent of Google
-  AMZN = "AMZN",  // Amazon.com, Inc. – e-commerce & cloud
-  META = "META",  // Meta Platforms, Inc. – social & digital advertising
-  TSLA = "TSLA",  // Tesla, Inc. – electric vehicles & energy
-  LLY = "LLY",   // Eli Lilly and Company – biotech & pharma
-  // NVDA = "NVDA",  // NVIDIA Corp (duplicate symbol consolidated)
-  AVGO = "AVGO",  // Broadcom Inc. – semiconductors & infrastructure
-  TSM = "TSM",   // Taiwan Semiconductor Mfg Co (ADR) – semiconductor manufacturing
-  WMT = "WMT",   // Walmart Inc. – retailing
-  JPM = "JPM",   // JPMorgan Chase & Co. – banking & financials
-  V = "V",     // Visa Inc. – payments & fintech
-  MA = "MA",    // Mastercard Inc. – payments network
-  XOM = "XOM",   // Exxon Mobil Corporation – energy
-  JNJ = "JNJ",   // Johnson & Johnson – healthcare & consumer products
-  ORCL = "ORCL",  // Oracle Corporation – enterprise software
-  PG = "PG",    // Procter & Gamble Co. – consumer goods
-  BAC = "BAC",   // Bank of America Corporation – financials
-  KO = "KO",    // Coca-Cola Company – beverages
-  COST = "COST",  // Costco Wholesale Corporation – retail
-  PEP = "PEP",   // PepsiCo, Inc. – food & beverages
-  NFLX = "NFLX",  // Netflix, Inc. – streaming & media
-  CSCO = "CSCO",  // Cisco Systems, Inc. – networking hardware
-  INTC = "INTC",  // Intel Corporation – semiconductors
-  CRM = "CRM",   // Salesforce, Inc. – CRM & cloud software
-  HON = "HON",   // Honeywell International Inc. – diversified industrials
-  HD = "HD",    // Home Depot, Inc. – home improvement retail
-  UNH = "UNH",   // UnitedHealth Group Inc. – health insurance & services
-  SPGI = "SPGI",  // S&P Global, Inc. – financial information
-  TXN = "TXN",   // Texas Instruments Inc. – semiconductors
-  ADBE = "ADBE",  // Adobe Inc. – creative/marketing software
-  ABT = "ABT",   // Abbott Laboratories – medical devices & healthcare
-  TMO = "TMO",   // Thermo Fisher Scientific Inc. – life sciences tools
-  MMM = "MMM",   // 3M Company – diversified industrials
-  C = "C",     // Citigroup Inc. – financial services
-  UPS = "UPS",   // United Parcel Service – logistics & delivery
-  BX = "BX",    // Blackstone Inc. – investment management (example large cap)
-  AMGN = "AMGN",  // Amgen Inc. – biotech
-  GM = "GM",    // General Motors Company – autos
-  CAT = "CAT",   // Caterpillar Inc. – industrial machinery
-  LMT = "LMT",   // Lockheed Martin Corp – aerospace & defense
-  BKNG = "BKNG",  // Booking Holdings Inc. – online travel
-  PLTR = "PLTR",  // Palantir Technologies Inc. – software & analytics
-  SQ = "SQ",    // Block, Inc. – fintech
-  EA = "EA",    // Electronic Arts Inc. – gaming
-  SBUX = "SBUX",  // Starbucks Corporation – coffee retail
-  MCD = "MCD",   // McDonald’s Corporation – restaurants
-  T = "T",     // AT&T Inc. – communications
-  VZ = "VZ",    // Verizon Communications – telecom
-  // KO = "KO",    // Coca-Cola Company (duplicate)
-  IBM = "IBM",   // International Business Machines
-  GE = "GE",    // General Electric
-  RTX = "RTX",   // RTX Corporation (Raytheon)
-  DE = "DE",    // Deere & Company
-  BLK = "BLK",   // BlackRock
-  GS = "GS",    // Goldman Sachs
-  MS = "MS",    // Morgan Stanley
-  AXP = "AXP",   // American Express
-  PM = "PM",    // Philip Morris International
-  LOW = "LOW",   // Lowe’s Companies
-  INTU = "INTU",  // Intuit
-  ISRG = "ISRG",  // Intuitive Surgical
-  ADI = "ADI",   // Analog Devices
-  LRCX = "LRCX",  // Lam Research
-  AMAT = "AMAT",  // Applied Materials
-  MU = "MU",    // Micron Technology
-  REGN = "REGN",  // Regeneron Pharmaceuticals
-  VRTX = "VRTX",  // Vertex Pharmaceuticals
-  GILD = "GILD",  // Gilead Sciences
-  PFE = "PFE",   // Pfizer
-  MRK = "MRK",   // Merck & Co.
-  NKE = "NKE",   // Nike
-  DIS = "DIS",   // Walt Disney Company
-  SHOP = "SHOP",  // Shopify
-  UBER = "UBER",  // Uber Technologies
-  PYPL = "PYPL",  // PayPal
-  NOW = "NOW",   // ServiceNow
-  SNOW = "SNOW",  // Snowflake
-  PANW = "PANW",  // Palo Alto Networks
-  ZTS = "ZTS",   // Zoetis
-  MDT = "MDT",   // Medtronic
-  ELV = "ELV",   // Elevance Health
-  CVX = "CVX",   // Chevron Corporation
-  COP = "COP",   // ConocoPhillips
-  SO = "SO",    // Southern Company
-  NEE = "NEE",   // NextEra Energy
-  DUK = "DUK",   // Duke Energy
-  AEP = "AEP",   // American Electric Power
-  PNC = "PNC",   // PNC Financial Services
-  USB = "USB",   // U.S. Bancorp
-  SCHW = "SCHW",  // Charles Schwab
-  TGT = "TGT",   // Target Corporation
-  FDX = "FDX",   // FedEx
-  ADP = "ADP",   // Automatic Data Processing
-}
+import { z } from "zod";
+
+export const StockSymbolEnumZod = z.enum([
+  "NVDA", // NVIDIA Corporation – mega-cap tech leader (NASDAQ & S&P 500)
+  "AAPL", // Apple Inc. – mega-cap tech & consumer electronics
+  "MSFT", // Microsoft Corporation – mega-cap tech
+  "GOOGL", // Alphabet Inc. Class A – parent of Google
+  "GOOG", // Alphabet Inc. Class C – parent of Google
+  "AMZN", // Amazon.com, Inc. – e-commerce & cloud
+  "META", // Meta Platforms, Inc. – social & digital advertising
+  "TSLA", // Tesla, Inc. – electric vehicles & energy
+
+  // --- Other Mega-Cap & Core Index Leaders ---
+  "BRK.B", // Berkshire Hathaway Class B – Warren Buffett’s holding company
+  "AVGO", // Broadcom – semiconductors & infrastructure software
+  "LLY", // Eli Lilly – pharmaceuticals (obesity & diabetes drugs)
+  "JPM", // JPMorgan Chase – largest U.S. bank
+  "V", // Visa – global payments network
+  "MA", // Mastercard – global payments network
+  "UNH", // UnitedHealth Group – healthcare & insurance
+  "XOM", // Exxon Mobil – oil & gas supermajor
+  "JNJ", // Johnson & Johnson – healthcare & pharma
+  "PG", // Procter & Gamble – consumer staples
+
+  // --- Big Tech & Growth ---
+  "NFLX", // Netflix – streaming
+  "ADBE", // Adobe – creative & enterprise software
+  "CRM", // Salesforce – cloud CRM
+  "INTC", // Intel – semiconductors
+  "AMD", // Advanced Micro Devices – CPUs & GPUs
+  "QCOM", // Qualcomm – mobile chips & IP
+  "ORCL", // Oracle – enterprise software & cloud
+  "IBM", // IBM – enterprise & AI infrastructure
+  "SHOP", // Shopify – e-commerce software
+  "SNOW", // Snowflake – cloud data platform
+  "PLTR", // Palantir – data analytics & AI
+
+  // --- Consumer & Brands ---
+  "DIS", // Walt Disney – media & entertainment
+  "NKE", // Nike – global apparel
+  "MCD", // McDonald's – fast food
+  "SBUX", // Starbucks – coffee chain
+  "KO", // Coca-Cola – beverages
+  "PEP", // PepsiCo – beverages & snacks
+  "COST", // Costco – warehouse retail
+  "WMT", // Walmart – retail giant
+  "HD", // Home Depot – home improvement
+  "LOW", // Lowe’s – home improvement
+
+  // --- Finance, Energy, Industrials ---
+  "BAC", // Bank of America
+  "GS", // Goldman Sachs
+  "MS", // Morgan Stanley
+  "CVX", // Chevron – oil & gas
+  "CAT", // Caterpillar – heavy equipment
+  "BA", // Boeing – aerospace
+  "GE", // General Electric – industrial & aerospace
+  "RTX", // RTX (Raytheon) – defense & aerospace
+  "LMT", // Lockheed Martin – defense
+  "DE", // Deere & Co – agriculture & construction
+
+  // --- ETFs (very popular for market exposure) ---
+  "SPY", // S&P 500 ETF
+  "QQQ", // Nasdaq-100 ETF
+  "DIA", // Dow Jones ETF
+  "IWM", // Russell 2000 (small caps)
+  "VTI", // Total U.S. stock market
+  "VOO", // Vanguard S&P 500
+]).describe("The stock ticker symbol of the company (e.g. 'IBM', 'META', 'AAPL')");
+
+export type StockSymbol = z.infer<typeof StockSymbolEnumZod>;

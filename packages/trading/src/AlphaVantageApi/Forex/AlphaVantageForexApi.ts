@@ -58,16 +58,14 @@ export class AlphaVantageForexApi extends BaseAlphaVantageApi<AlphaVantageApiSea
     toCurrency: Currency,
     dataType: DataType = "json"
   ): Promise<GetWeeklyTimeSeriesOutput> {
-    const res = await this.getWithParams({
+    const p = {
       function: "FX_WEEKLY",
       from_symbol: fromCurrency,
       to_symbol: toCurrency,
       datatype: dataType,
-    });
-    if (res.ok) {
-      return res.json();
-    }
-    throw new Error(`FX_WEEKLY request failed with code: ${res.status}, text: ${res.statusText}`);
+    } as AlphaVantageApiSearchParam;
+    const res = await this.getWithParams(p);
+    return this.handleResponse(res, p);
   }
 
   /**
@@ -80,20 +78,32 @@ export class AlphaVantageForexApi extends BaseAlphaVantageApi<AlphaVantageApiSea
     outputSize: OutputSize = "compact",
     dataType: DataType = "json"
   ): Promise<GetDailyTimeSeriesOutput> {
-    const res = await this.getWithParams({
+    const p = {
       function: "FX_DAILY",
       from_symbol: fromCurrency,
       to_symbol: toCurrency,
       outputsize: outputSize,
       datatype: dataType,
-    });
-    if (res.ok) {
-      return res.json();
-    }
-    throw new Error(`FX_DAILY request failed with code: ${res.status}, text: ${res.statusText}`);
+    } as AlphaVantageApiSearchParam;
+    const res = await this.getWithParams(p);
+    return this.handleResponse(res, p);
   }
 
 
+  /**
+   * Get Crypto prise in US Dollars
+   */
+  public async getCryptoPrice(cryptoCurrency: CryptoSymbol) {
+    return this.getExchangeRate(cryptoCurrency, "USD");
+  }
+
+  /**
+   * This API returns the exchange rate between two physical currencies
+   * e.g. USD to EUR
+   */
+  public async getPhysicalToPhysicalExchangeRate(fromPhysicalCurrency: Currency, toPhysicalCurrency: Currency) {
+    return this.getExchangeRate(fromPhysicalCurrency, toPhysicalCurrency);
+  }
 
   /**
    * This API returns the realtime exchange rate for a pair of physical currency (e.g., USD)
@@ -117,25 +127,18 @@ export class AlphaVantageForexApi extends BaseAlphaVantageApi<AlphaVantageApiSea
     return this.getExchangeRate(cryptoCurrency, physicalCurrency);
   }
 
-
   /**
    * @deprecated (PREMIUM Use Only) This API returns intraday time series (timestamp, open, high, low, close) of the FX currency pair specified, updated realtime.
    */
-  public async getIntradayTimeSeries(
-    fromCurrency: Currency,
-    toCurrency: Currency,
-    interval: IntraDayInterval
-  ): Promise<any> {
-    const res = await this.getWithParams({
+  public async getIntradayTimeSeries(fromCurrency: Currency, toCurrency: Currency, interval: IntraDayInterval) {
+    const p = {
       function: "FX_INTRADAY",
       from_currency: fromCurrency,
       to_currency: toCurrency,
       interval: interval,
-    });
-    if (res.ok) {
-      return res.json();
-    }
-    throw new Error(`FX_INTRADAY request failed with code: ${res.status}, text: ${res.statusText}`);
+    } as AlphaVantageApiSearchParam;
+    const res = await this.getWithParams(p);
+    return this.handleResponse(res, p);
   }
   //  ------------------------- PRIVATE METHODS ------------------------- //
   /**
@@ -146,14 +149,12 @@ export class AlphaVantageForexApi extends BaseAlphaVantageApi<AlphaVantageApiSea
     fromCurrency: Currency | CryptoSymbol,
     toCurrency: Currency | CryptoSymbol
   ): Promise<CurrencyExchangeRateOutput> {
-    const res = await this.getWithParams({
+    const p = {
       function: "CURRENCY_EXCHANGE_RATE",
       from_currency: fromCurrency,
       to_currency: toCurrency,
-    });
-    if (res.ok) {
-      return res.json();
-    }
-    throw new Error(`CURRENCY_EXCHANGE_RATE request failed with code: ${res.status}, text: ${res.statusText}`);
+    } as AlphaVantageApiSearchParam;
+    const res = await this.getWithParams(p);
+    return this.handleResponse(res, p);
   }
 }

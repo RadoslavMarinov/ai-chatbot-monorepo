@@ -5,7 +5,7 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 import { zodFunction } from 'openai/helpers/zod';
 import { BooksModel } from './models/Books/Books.model';
 import { z } from 'zod';
-import { GeminiAi, GithubAi, OllamaAi } from '@repo/ai';
+import { GeminiAi, GithubAi, NativeTools, OllamaAi } from '@repo/ai';
 import {
   AlphaVantageForexApi,
   CryptoSymbol,
@@ -14,6 +14,9 @@ import {
   AlphaVantageStockApi,
   StockSymbol,
   stocksMcpTools,
+  AlphaVantageCryptoApi,
+  CryptoSymbolEnumZod,
+  alphaVantageCryptoTools,
 } from '@repo/trading';
 // import { GeminiAi } from './lib/ai/GeminiAi/GeminiAi';
 const app = express();
@@ -25,16 +28,20 @@ const port = process.env.PORT || 3002;
 const chatHistory: Array<ChatCompletionMessageParam> = [
   {
     role: 'system',
-    content: 'Use/call the tools to retrieve data about different data sets. Present the information in user readable way. Dont use code snippets, assume the user is not a programmer',
+    content: `
+    # Instructions:
+    ## Use the tools to retrieve data!
+    ## Dont ask for permission - just use them!
+    ## Relying on outdated information can be detrimental. From now on, I will make sure to use the tools for the most accurate information available!`,
   },
 ];
 // const ai = new GithubAi("openai/gpt-4.1-mini");
-// const ai = new GeminiAi("gemini-2.0-flash");
-const ai = new OllamaAi();
+const ai = new GeminiAi("gemini-3-flash-preview");
+// const ai = new OllamaAi("mixtral:8x7b");
 
 app.get('/', async (req, res) => {
-  const data = await new AlphaVantageStockApi().timeSeriesDaily({
-    symbol: StockSymbol.AAPL,
+  const data = await new AlphaVantageCryptoApi().getCryptoDaily({
+    symbol: "BTC"
   })
   return res.json(data);
 });
@@ -50,13 +57,13 @@ wss.on('connection', (ws) => {
   ws.on('message', async (message) => {
     console.log(`Received message => ${message}`);
     chatHistory.push({ role: 'user', content: `${message}` });
-    
-    
+
     const runner = await ai.runTools(
-      chatHistory, //
+      chatHistory,
       [
-        ...stocksMcpTools,
-        ...forexMcpTools,
+        ...alphaVantageCryptoTools,
+        // ...stocksMcpTools,
+        // ...forexMcpTools,
         // zodFunction({
         //   name: 'listAllBooks',
         //   description: 'Returns a list of all books',
@@ -75,16 +82,15 @@ wss.on('connection', (ws) => {
         //   parameters: z.object({ genre: z.string() }),
         //   function: ({ genre }) => BooksModel.findByGenre(genre),
         // }),
-      ]
+      ],
     );
-    
+    runner.on('message', (message) => {
+      // console.log(`>>>> AI: ${JSON.stringify(message,null,2)}`);
+    })
     const finalMessage = await runner.finalMessage();
-
     const response = finalMessage.content as string;
     console.log(`AI: ${response}\n`);
-
     chatHistory.push({ role: 'assistant', content: response });
-    
     ws.send(`Hello, you sent -> ${response}`);
   });
 

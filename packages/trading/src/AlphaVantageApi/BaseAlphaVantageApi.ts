@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EnvUtils } from "@repo/utils";
 import { AlphaVantageApiEnvs } from "./types";
 
@@ -17,11 +18,11 @@ export abstract class BaseAlphaVantageApi<SearchParams extends Record<string, an
     return fetch(url);
   }
 
-  protected handleResponse(res: Response){
+  protected handleResponse(res: Response, params?: SearchParams){
     if(res.ok){
       return res.json()
     }
-    throw new Error(`timeSeriesDaily failed with status ${res.status}, ${res.statusText}`)
+    throw new Error(`Request failed with status ${res.status}, ${res.statusText}`)
   }
 
   // -------------------- PRIVATE METHODS -------------------- //

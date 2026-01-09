@@ -36,6 +36,9 @@ export abstract class BaseAi {
       messages,
       tools,
       model: currentModel,
+      
+      tool_choice: "auto",
+
     })
   }
 }

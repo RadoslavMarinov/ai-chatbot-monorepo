@@ -1,5 +1,5 @@
 "use client";
-
+import Markdown from "react-markdown";
 import React, { useEffect, useReducer, useState } from "react";
 import Spinner from "../Spinners/Spinner";
 type State = {
@@ -87,7 +87,7 @@ const WsClient: React.FC = () => {
 
   return (
     <div>
-      <h1>WebSocket Client</h1>
+      <h1>🤖</h1>
       <textarea
         value={state.message}
         onChange={(e) => dispatch({ type: "set-message", message: e.target.value })}
@@ -101,8 +101,9 @@ const WsClient: React.FC = () => {
       <div>
         <h2>Received Messages:</h2>
         <ul>
+
           {state.aiResponses.map((msg, index) => (
-            <li key={index}>{msg}</li>
+            <li key={index}><Markdown>{msg}</Markdown></li>
           ))}
         </ul>
       </div>

@@ -7,6 +7,7 @@ interface Book {
 
 export class BooksModel {
   static async all() :Promise<Book[]> {
+    console.log(`🎉 List all books = `);
     await this.waitMs(1000);
     return [
       {
@@ -193,18 +194,22 @@ export class BooksModel {
   }
 
   static async findByName(name: string): Promise<Book[]> {
+    console.log(`🎉 findByName = `, name);
     return (await this.all()).filter((book) => book.title.includes(name));
   }
 
   static async findById(id: string):  Promise<Book|undefined>    {
+    console.log(`🎉 findById = `, id);
     return (await this.all()).find((book) => book.id === id);
   }
 
   static async findByGenre(genre: string): Promise<Book[] | undefined> {
+    console.log(`🎉 findByGenre = `, genre);
     return  ( await this.all()).filter((book) => book.genre === genre);
   }
 
   static async findByAuthor(author: string): Promise<Book[] | undefined> {
+    console.log(`🎉 findByAuthor = `, author);
     return (await this.all()).filter((book) => book.author === author);
   }
 
