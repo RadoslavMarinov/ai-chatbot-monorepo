@@ -3,7 +3,7 @@ import remarkGfm from 'remark-gfm';
 
 export function ChatMessage({ content }: { content: string }) {
   return (
-    <div className="prose prose-sm md:prose-base max-w-none dark:prose-invert">
+    <div className={`prose prose-sm md:prose-base max-w-none dark:prose-invert`}>
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{

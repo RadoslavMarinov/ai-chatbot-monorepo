@@ -30,10 +30,11 @@ export const config = [
       "react-hooks": pluginReactHooks,
     },
     settings: { react: { version: "detect" } },
-    rules: {
+    rules: { // HERE we overwrite default Eslint rules
       ...pluginReactHooks.configs.recommended.rules,
       // React scope no longer necessary with new JSX transform.
       "react/react-in-jsx-scope": "off",
+      "@typescript-eslint/no-unnecessary-type-constraint": "off",
     },
   },
 ];

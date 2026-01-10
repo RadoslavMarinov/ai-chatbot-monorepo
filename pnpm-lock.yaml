@@ -148,6 +148,9 @@ importers:
       openai:
         specifier: ^5.23.2
         version: 5.23.2(ws@8.18.3)(zod@3.25.76)
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*

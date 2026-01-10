@@ -17,8 +17,8 @@ export const alphaVantageCryptoTools = [
     },
   }),
   zodFunction({
-    name: "get_crypto_daily",
-    description: `Returns the open and close price of crypto currency by given symbol and a number of days to look back for historical data`,
+    name: "get_historical_crypto_currency_market_daily_data",
+    description: `Returns the open, high, low, and close price of crypto currency by given crypto currency symbol and a number of days to look back for historical data`,
     parameters: z.object({
       cryptoCurrency: CryptoSymbolEnumZod.describe(`The crypto symbol to look up`),
       daysBack: z.number().describe("Number of days to look back for historical data"),

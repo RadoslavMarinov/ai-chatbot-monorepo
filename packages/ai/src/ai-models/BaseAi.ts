@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Messages, Tools } from "./types";
+import { Message, Tools } from "./types";
 
 export abstract class BaseAi {
   protected ai: OpenAI;
@@ -29,7 +29,7 @@ export abstract class BaseAi {
     return this.availableModels;
   }
 
-  async runTools(messages: Messages, tools: Tools, model?:string, ){
+  async runTools(messages: Message[], tools: Tools, model?:string, ){
     const currentModel = model || this.model;
     
     return this.ai.chat.completions.runTools({
