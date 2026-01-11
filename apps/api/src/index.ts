@@ -5,7 +5,15 @@ import { ChatCompletionMessageParam } from 'openai/resources';
 import { zodFunction } from 'openai/helpers/zod';
 import { BooksModel } from './models/Books/Books.model';
 import { z } from 'zod';
-import { BellaDatasource, bellaTools, GeminiAi, GeminiToolRunner, GithubAi, NativeTools, OllamaAi } from '@repo/ai';
+import {
+  BellaDatasource,
+  bellaTools,
+  GeminiAi,
+  GeminiToolRunner,
+  GithubAi,
+  NativeTools,
+  OllamaAi,
+} from '@repo/ai';
 import {
   AlphaVantageForexApi,
   CryptoSymbol,
@@ -31,17 +39,9 @@ const chatHistory: Array<ChatCompletionMessageParam> = [
     content: `
     # Instructions:
     ## Use the tools to retrieve data!
-    ## Dont ask for permission - just use them!`
+    ## Dont ask for permission - just use them!`,
   },
 ];
-
-// ------------- AIs ----------------- //
-// const ai = new GithubAi("openai/gpt-4.1-mini");
-// const ai = new GeminiAi("gemini-2.5-flash");
-// const ai = new OllamaAi("llama3-groq-tool-use:8b");
-
-// ------------- Tool rotating runners ----------------- //
-const ai = new GeminiToolRunner("gemini-3-flash-preview")
 
 app.get('/', async (req, res) => {
   // const data = await new AlphaVantageCryptoApi().getCryptoDaily({
@@ -59,6 +59,14 @@ app.get('/list-models', async (req, res) => {
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
+  // ------------- AIs ----------------- //
+
+  // const ai = new GithubAi("openai/gpt-4.1-mini");
+  
+  // const ai = new GeminiAi('gemini-2.5-flash');
+  const ai = new GeminiToolRunner()
+
+  // const ai = new OllamaAi("llama3-groq-tool-use:8b");
 
   ws.on('message', async (message) => {
     console.log(`Received message => ${message}`);
@@ -73,40 +81,40 @@ wss.on('connection', (ws) => {
     //     // ...forexMcpTools,
     //   ],
     // );
-    // runner.on('message', (message) => {
-    //   // console.log(`>>>> AI: ${JSON.stringify(message,null,2)}`);
-    // })
-    // runner.on('error', (err) => {
-    //   console.log(`❌ AI model error: `,(err as any).status );
-    //   // console.log(`>>>> AI: ${JSON.stringify(message,null,2)}`);
-    // })
-    // const finalMessage = await runner.finalMessage();
-    const finalMessage = await ai.runTools(
-      chatHistory,
-      [
+
+    if(ai instanceof GeminiToolRunner){
+        ai.onMessage = (msg)=>{
+          ws.send(msg.content as string)
+        }
+    }
+    const runner = await ai
+      .runTools(chatHistory, [
         ...alphaVantageCryptoTools,
         ...bellaTools,
         // ...stocksMcpTools,
         // ...forexMcpTools,
-      ],
-    ).catch((err) => {
-      console.log(`❌ AI model error: `,(err as any).status );
-    });
+      ])
+      .catch((err) => {
+        console.log(`❌ AI model error: `, err);
+      });
+      
 
-    const response = finalMessage?.content as string;
-    console.log(`🚀 AI: ${response}\n`, );
-    console.log(``);
-    chatHistory.push({ role: 'assistant', content: response });
-    ws.send(`${response}`);
+    if (runner) {
+      const finalMessage = await runner.finalMessage();
+
+      console.log(`🚀 AI: ${finalMessage}\n`);
+      console.log(``);
+      chatHistory.push({ role: 'assistant', content: finalMessage.content });
+      ws.send(`${finalMessage.content}`);
+    }
   });
 
   ws.on('close', () => {
-    console.log(`❌ WS Client disconnected`, );
+    console.log(`❌ WS Client disconnected`);
   });
-  ws.on("error", (err) =>{
-    console.log(`❌ WS Client error: `,err );
-  })
-  
+  ws.on('error', (err) => {
+    console.log(`❌ WS Client error: `, err);
+  });
 });
 
 server.listen(port, () => {

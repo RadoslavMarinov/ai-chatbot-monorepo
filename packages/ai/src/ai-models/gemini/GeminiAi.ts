@@ -10,4 +10,8 @@ export class GeminiAi extends BaseAi {
   ) {
     super( model, baseUrl, apiKey );
   }
+
+  getModel(){
+    return this.model;
+  }
 }
