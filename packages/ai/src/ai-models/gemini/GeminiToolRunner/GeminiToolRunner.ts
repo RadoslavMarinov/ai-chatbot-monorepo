@@ -73,7 +73,7 @@ export class GeminiToolRunner {
       this.aiModelsList = [...INITIAL_AI_MODELS];
       this?.onMessage?.({
         role: "assistant",
-        content: `🚧 Changing ApiKey: **${this.apiKeys[0]?.slice(4) + "*******" + this.apiKeys[0]?.slice(-4)} **! Please try again!`,
+        content: `🚧 Changing ApiKey: **${this.apiKeys[0]?.slice(0,4) + "*******" + this.apiKeys[0]?.slice(-4)} **! Please try again!`,
       });
       this.changeAiModel();
       return true
