@@ -38,7 +38,6 @@ export class GeminiToolRunner {
             );
           });
 
-          // runner.on("error", async (err) => {});
           return runner.finalMessage().then((msg) => {
             resolve(runner);
           });

@@ -20,7 +20,7 @@ export class GeminiToolWrapper {
     this.chatHistory.push({ role: "user", content: `${msg}` });
     const runner = await this.ai.runTools(this.chatHistory, this.tools);
     const finalMesssage = await runner.finalMessage();
-    this.chatHistory.push(finalMesssage)
+    // this.chatHistory.push(finalMesssage)
     return finalMesssage;
   }
 }
