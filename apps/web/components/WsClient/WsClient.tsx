@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { ChatMessage } from "../Chat/ChatMessage";
 import { TypingDots } from "../Loaders/TypingDots";
 
@@ -122,8 +122,14 @@ const WsClient: React.FC = () => {
   }, [state.chatMessages]);
 
   return (
-    <div>
-      <div ref={containerRef} className="overflow-y-scroll h-96">
+    /** 
+      Make the follwing stype so that it is a flex container whose elements (flex items ) 
+      are ordered in colums 
+      the first column taking up 3/4 space the second 1/4 of the space
+      use tailwind 
+     *  */
+    <div className="flex flex-col h-full" >
+      <div id="chat-container" ref={containerRef} className="overflow-y-scroll max-h-[65vh]">
         <ul className="flex flex-col gap-3">
           {state.chatMessages.map(({ content, role }, index) => (
             <li key={index}>
@@ -138,7 +144,8 @@ const WsClient: React.FC = () => {
           {state.loading && <li><TypingDots></TypingDots></li>}
         </ul>
       </div>
-      <div className="flex flex-col items-center mt-4">
+      
+      <div id="input-container" className="flex flex-col items-center mt-4">
         <textarea
           onKeyDown={(e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -151,7 +158,6 @@ const WsClient: React.FC = () => {
           onChange={(e) => dispatch({ type: "set-message", message: e.target.value })}
           placeholder="Type a message"
         />
-        {state.loading && <TypingDots></TypingDots>}
         <button
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-blue-300"
           onClick={sendMessageToAi}

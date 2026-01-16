@@ -1,13 +1,9 @@
-import { OpenAIError } from "openai";
 import { Message, Tools } from "../../types";
 import { GeminiAi } from "../GeminiAi";
 import { ChatCompletionRunner } from "openai/lib/ChatCompletionRunner.js";
 import { GeminiModels } from "..";
 import { EnvUtils } from "@repo/utils";
-
-type AiError = OpenAIError & {
-  status: number;
-};
+import { AiError, GeminiToolRunnerProps } from "./types";
 
 const INITIAL_AI_MODELS: GeminiModels[] = [
   "gemini-3-flash-preview",
@@ -15,6 +11,7 @@ const INITIAL_AI_MODELS: GeminiModels[] = [
   "gemini-2.5-flash-lite",
   // "gemma-3-27b",
 ];
+
 export class GeminiToolRunner {
   private apiKeys = EnvUtils.getEnvVariable("GEMINI_AI_API_KEYS").split(",");
   private aiModelsList: GeminiModels[] = [...INITIAL_AI_MODELS];
@@ -23,12 +20,11 @@ export class GeminiToolRunner {
   onMessage?: (msg: Message) => void;
   onError?: (err: Error) => void;
 
-  constructor(onMessage?: (msg: Message) => void, onError?: (err: Error) => void, baseUrl?: string) {
-    this.baseUrl = baseUrl;
-    this.onMessage = onMessage;
-    this.onError = onError;
-    this.onError = onError;
-    this.ai = new GeminiAi(this.aiModelsList[0]!, baseUrl, this.apiKeys[0]);
+  constructor(props?: GeminiToolRunnerProps) {
+    this.baseUrl = props?.baseUrl;
+    this.onMessage = props?.assistant?.onMessage;
+    this.onError = props?.assistant?.onError;
+    this.ai = new GeminiAi(this.aiModelsList[0]!, this.baseUrl, this.getApiKey());
   }
 
   async runTools(messages: Message[], tools: Tools): Promise<ChatCompletionRunner> {
@@ -37,20 +33,19 @@ export class GeminiToolRunner {
         .runTools(messages, tools)
         .then((runner) => {
           runner.on("message", (message) => {
-            console.log(`>>>> 🤖 AI 🤖 (${this.ai.getModel()}): ${JSON.stringify(message, null, 2)}`);
+            console.log(`>>>> 🤖 AI 🤖 (${this.ai.getModel()}): ${JSON.stringify({...message, content: `${message.content?.slice(0, 100)}...`}, null, 2)}`);
           });
 
-          runner.on("error", (err) => {
+          runner.on("error", async (err) => {
             if (this.isAiError(err)) {
               if (err.status === 429) {
-                const nextModel = this.changeAiModel()
-                if(!nextModel){
-                  const nextApiKey = this.changeApiKeyNext();
-                  if(!nextApiKey){
-                    console.log(`❌ NO MORE MODELS OR ACCOUNTS TO EXPLOIT ! ❌ `, );
-                    reject(err)
-                  }
+                const hasNextKey = this.changeNextApiKey();
+                if (!hasNextKey) {
+                  this.initApiKeys();
+                  this.changeAiModel();
                 }
+                const newRunner = await this.runTools(messages, tools);
+                resolve(newRunner)
               }
             }
           });
@@ -68,41 +63,72 @@ export class GeminiToolRunner {
     });
   }
 
-  private changeApiKeyNext() {
-    if (this.apiKeys.shift()) {
-      this.aiModelsList = [...INITIAL_AI_MODELS];
-      this?.onMessage?.({
-        role: "assistant",
-        content: `🚧 Changing ApiKey: **${this.apiKeys[0]?.slice(0,4) + "*******" + this.apiKeys[0]?.slice(-4)} **! Please try again!`,
-      });
-      this.changeAiModel();
-      return true
-    } else {
-      return false
+  private changeNextApiKey() {
+    const nextApiKey = this.apiKeys.shift();
+    if (!nextApiKey) {
+      this.onNoMoreApiKeys()
+      return false;
     }
+    this.ai = new GeminiAi(this.getModel()!, this.baseUrl, this.getApiKey()!);
+    this.onNextApiKey();
+    return true;
+  }
+
+  private getApiKey() {
+    return this.apiKeys[0];
+  }
+
+  private initApiKeys() {
+    this.apiKeys = EnvUtils.getEnvVariable("GEMINI_AI_API_KEYS").split(",");
+  }
+
+
+  private onNextApiKey() {
+    this?.onMessage?.({
+      role: "assistant",
+      content: `🚧 Changing ApiKey: **${this.getApiKey()?.slice(0, 4) + "*******" + this.getApiKey()?.slice(-4)} **! Please try again!`,
+    });
+  }
+  private onNoMoreApiKeys() {
+    this?.onMessage?.({
+      role: "assistant",
+      content: `🚧 No more ApiKeys available`,
+    });
   }
 
   /**
-   * 
+   *
    * @returns True if there are more models to be exploited
    */
   private changeAiModel(): boolean {
     const nextModel = this.aiModelsList.shift();
-    if(nextModel){
-      this.ai = new GeminiAi(nextModel!, this.baseUrl, this.apiKeys[0]!);
-      this?.onMessage?.({
-        role: "assistant",
-        content: `🚧 Changing model: **${this.aiModelsList[0]}**! Please try again!`,
-      });
-      return true
-    } else {
-      this?.onMessage?.({
-        role: "assistant",
-        content: `🚧 No more models or accounts to exploit! Please try again later!`,
-      });
-      return false
+    if (!nextModel) {
+      this.onNoMoreModels();
+      return false;
     }
+    this.ai = new GeminiAi(this.getModel()!, this.baseUrl, this.getApiKey()!);
+    this.onChangedAiModel();
+    return true;
   }
+
+  private getModel() {
+    return this.aiModelsList[0];
+  }
+  private onChangedAiModel() {
+    this?.onMessage?.({
+      role: "assistant",
+      content: `🚧 Changing model: **${this.aiModelsList[0]}**! Please try again!`,
+    });
+  }
+
+  private onNoMoreModels() {
+    this?.onMessage?.({
+      role: "assistant",
+      content: `🚧 No more models available`,
+    });
+  }
+
+
 
   private isAiError(err: unknown): err is AiError {
     return (err as AiError).status !== undefined;

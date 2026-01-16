@@ -4,6 +4,7 @@ export type OllamaModels =
 
 |"lama3-groq-tool-use:latest" // Test this
 |"llama3.1:8b" // Test this
+|"qwen3:8b" // Test this
 // | "aliafshar/gemma3-it-qat-tools:12b" // Works with tools but not impressive
 // | "MFDoom/deepseek-r1-tool-calling:14b" // DELETED Does not call tools
 //| "devstral-small-2" // DELETED TOO HEAVY  123B parameters
