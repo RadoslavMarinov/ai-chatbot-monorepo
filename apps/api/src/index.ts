@@ -10,9 +10,11 @@ import {
   bellaTools,
   GeminiAi,
   GeminiToolRunner,
+  GeminiToolWrapper,
   GithubAi,
   NativeTools,
   OllamaAi,
+  Tools,
 } from '@repo/ai';
 import {
   AlphaVantageForexApi,
@@ -62,51 +64,26 @@ wss.on('connection', (ws) => {
   // ------------- AIs ----------------- //
 
   // const ai = new GithubAi("openai/gpt-4.1-mini");
-  
+
   // const ai = new GeminiAi('gemini-2.5-flash');
-  const ai = new GeminiToolRunner()
+  // const ai = new GeminiToolRunner()
+  const ai = new GeminiToolWrapper(chatHistory, [
+    ...alphaVantageCryptoTools,
+    ...bellaTools,
+  ], (msg) => {
+    ws.send(msg.content as string);
+  })
 
   // const ai = new OllamaAi("llama3-groq-tool-use:8b");
 
   ws.on('message', async (message) => {
     console.log(`Received message => ${message}`);
-    chatHistory.push({ role: 'user', content: `${message}` });
+    // chatHistory.push({ role: 'user', content: `${message}` });
+    const response = await ai.run(message.toString());
 
-    // const runner = await ai.runTools(
-    //   chatHistory,
-    //   [
-    //     ...alphaVantageCryptoTools,
-    //     ...bellaTools,
-    //     // ...stocksMcpTools,
-    //     // ...forexMcpTools,
-    //   ],
-    // );
-
-    if(ai instanceof GeminiToolRunner){
-        ai.onMessage = (msg)=>{
-          ws.send(msg.content as string)
-        }
-    }
-    const runner = await ai
-      .runTools(chatHistory, [
-        ...alphaVantageCryptoTools,
-        ...bellaTools,
-        // ...stocksMcpTools,
-        // ...forexMcpTools,
-      ])
-      .catch((err) => {
-        console.log(`❌ AI model error: `, err);
-      });
-      
-
-    if (runner) {
-      const finalMessage = await runner.finalMessage();
-
-      console.log(`🚀 AI: ${finalMessage}\n`);
-      console.log(``);
-      chatHistory.push({ role: 'assistant', content: finalMessage.content });
-      ws.send(`${finalMessage.content}`);
-    }
+      console.log(`🚀 AI: ${response}\n`);
+      // chatHistory.push({ role: 'assistant', content: response.content });
+      ws.send(`${response.content}`);
   });
 
   ws.on('close', () => {
@@ -122,3 +99,5 @@ server.listen(port, () => {
 });
 
 export default server;
+
+

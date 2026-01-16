@@ -17,13 +17,13 @@ export class GeminiToolRunner {
   private aiModelsList: GeminiModels[] = [...INITIAL_AI_MODELS];
   private ai: GeminiAi;
   baseUrl?: string;
-  onMessage?: (msg: Message) => void;
+  onSystemMessage?: (msg: Message) => void;
   onError?: (err: Error) => void;
 
   constructor(props?: GeminiToolRunnerProps) {
     this.baseUrl = props?.baseUrl;
-    this.onMessage = props?.assistant?.onMessage;
-    this.onError = props?.assistant?.onError;
+    this.onSystemMessage = props?.onSystemMessage;
+    this.onError = props?.onError;
     this.ai = new GeminiAi(this.aiModelsList[0]!, this.baseUrl, this.getApiKey());
   }
 
@@ -33,29 +33,25 @@ export class GeminiToolRunner {
         .runTools(messages, tools)
         .then((runner) => {
           runner.on("message", (message) => {
-            console.log(`>>>> 🤖 AI 🤖 (${this.ai.getModel()}): ${JSON.stringify({...message, content: `${message.content?.slice(0, 100)}...`}, null, 2)}`);
+            console.log(
+              `>>>> 🤖 AI 🤖 (${this.ai.getModel()}): ${JSON.stringify({ ...message, content: `${message.content?.slice(0, 100)}...` }, null, 2)}`
+            );
           });
 
-          runner.on("error", async (err) => {
-            if (this.isAiError(err)) {
-              if (err.status === 429) {
-                const hasNextKey = this.changeNextApiKey();
-                if (!hasNextKey) {
-                  this.initApiKeys();
-                  this.changeAiModel();
-                }
-                const newRunner = await this.runTools(messages, tools);
-                resolve(newRunner)
-              }
-            }
-          });
+          // runner.on("error", async (err) => {});
           return runner.finalMessage().then((msg) => {
             resolve(runner);
           });
         })
-        .catch((err) => {
-          if (this.isAiError(err)) {
-            this?.onError?.(err);
+        .catch(async (err) => {
+          if (this.isAiError(err) && err.status === 429) {
+            const hasNextKey = this.changeNextApiKey();
+            if (!hasNextKey) {
+              this.initApiKeys();
+              this.changeAiModel();
+            }
+            const newRunner = await this.runTools(messages, tools);
+            resolve(newRunner);
           } else {
             reject(err);
           }
@@ -66,7 +62,7 @@ export class GeminiToolRunner {
   private changeNextApiKey() {
     const nextApiKey = this.apiKeys.shift();
     if (!nextApiKey) {
-      this.onNoMoreApiKeys()
+      this.onNoMoreApiKeys();
       return false;
     }
     this.ai = new GeminiAi(this.getModel()!, this.baseUrl, this.getApiKey()!);
@@ -82,15 +78,14 @@ export class GeminiToolRunner {
     this.apiKeys = EnvUtils.getEnvVariable("GEMINI_AI_API_KEYS").split(",");
   }
 
-
   private onNextApiKey() {
-    this?.onMessage?.({
+    this?.onSystemMessage?.({
       role: "assistant",
       content: `🚧 Changing ApiKey: **${this.getApiKey()?.slice(0, 4) + "*******" + this.getApiKey()?.slice(-4)} **! Please try again!`,
     });
   }
   private onNoMoreApiKeys() {
-    this?.onMessage?.({
+    this?.onSystemMessage?.({
       role: "assistant",
       content: `🚧 No more ApiKeys available`,
     });
@@ -115,20 +110,18 @@ export class GeminiToolRunner {
     return this.aiModelsList[0];
   }
   private onChangedAiModel() {
-    this?.onMessage?.({
+    this?.onSystemMessage?.({
       role: "assistant",
       content: `🚧 Changing model: **${this.aiModelsList[0]}**! Please try again!`,
     });
   }
 
   private onNoMoreModels() {
-    this?.onMessage?.({
+    this?.onSystemMessage?.({
       role: "assistant",
       content: `🚧 No more models available`,
     });
   }
-
-
 
   private isAiError(err: unknown): err is AiError {
     return (err as AiError).status !== undefined;
